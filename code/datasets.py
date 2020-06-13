@@ -24,11 +24,12 @@ if sys.version_info[0] == 2:
 else:
     import pickle
 
-
+# 準備データ
 def prepare_data(data):
     imgs, captions, captions_lens, class_ids, keys = data
 
     # sort data by the length in a decreasing order
+    # 降順で長さでデータのソート（キャプションの長さ、次元数、降順かどうか）
     sorted_cap_lens, sorted_cap_indices = \
         torch.sort(captions_lens, 0, True)
 

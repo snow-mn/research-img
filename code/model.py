@@ -34,13 +34,13 @@ class Interpolate(nn.Module):
         x = self.interp(x, scale_factor=self.scale_factor, mode=self.mode, size=self.size)
         return x
 
-
+# 畳み込み層1×1（カーネル：1、ストライド：1、パディング：1）
 def conv1x1(in_planes, out_planes, bias=False):
     "1x1 convolution with padding"
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1,
                      padding=0, bias=bias)
 
-
+# 畳み込み層3×3
 def conv3x3(in_planes, out_planes):
     "3x3 convolution with padding"
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=1,
