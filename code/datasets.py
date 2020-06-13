@@ -25,6 +25,7 @@ else:
     import pickle
 
 # 準備データ
+# 画像、キャプション、キャプションの長さ、クラスID、鍵
 def prepare_data(data):
     imgs, captions, captions_lens, class_ids, keys = data
 
@@ -57,8 +58,10 @@ def prepare_data(data):
             class_ids, keys]
 
 
+# 画像取得（画像パス、画像サイズ、
 def get_imgs(img_path, imsize, bbox=None,
              transform=None, normalize=None):
+    # 画像を開いてRGBに変換
     img = Image.open(img_path).convert('RGB')
     width, height = img.size
     if bbox is not None:
