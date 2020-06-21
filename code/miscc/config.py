@@ -64,28 +64,38 @@ __C.TEXT.WORDS_NUM = 18
 
 
 def _merge_a_into_b(a, b):
+    # 構成辞書aを構成辞書bにマージし、bのオプションがaでも指定されている場合はいつでも上書きする
     """Merge config dictionary a into config dictionary b, clobbering the
     options in b whenever they are also specified in a.
     """
+    # aの型がedictでないなら
     if type(a) is not edict:
         return
 
+    # items(): 各要素のキーと値に対してforループ処理
     for k, v in a.items():
         # a must specify keys that are in b
+        # キーがb（デフォルト）になければキーエラーを吐く
         if k not in b:
             raise KeyError('{} is not a valid config key'.format(k))
 
         # the types must match, too
+        # b（デフォルト）のキーに対応する値の型を取得
         old_type = type(b[k])
+        # 値の型がaの値の型と同じでなければ
         if old_type is not type(v):
+            # np.ndarrayの継承関係も考慮してbのキーに対応する値と同じ型であれば
             if isinstance(b[k], np.ndarray):
+                # kに対応するbの値のデータ型でnumpy配列生成
                 v = np.array(v, dtype=b[k].dtype)
             else:
+                # バリューエラーを吐く
                 raise ValueError(('Type mismatch ({} vs. {}) '
                                   'for config key: {}').format(type(b[k]),
                                                                type(v), k))
 
         # recursively merge dicts
+        # 辞書を再帰的にマージする
         if type(v) is edict:
             try:
                 _merge_a_into_b(a[k], b[k])
@@ -97,9 +107,11 @@ def _merge_a_into_b(a, b):
 
 
 def cfg_from_file(filename):
+    # デフォルトファイルをロードしてそれをデフォルトオプションとマージ
     """Load a config file and merge it into the default options."""
     import yaml
     with open(filename, 'r') as f:
+        # easydict
         yaml_cfg = edict(yaml.load(f))
 
     _merge_a_into_b(yaml_cfg, __C)

@@ -97,8 +97,11 @@ class TextDataset(data.Dataset):
                  base_size=64,
                  transform=None, target_transform=None):
         self.transform = transform
+        # torchvision.transforms.Composeは引数で渡されたlist型の[~~,~~,...]というのを先頭から順に実行していくもの
         self.norm = transforms.Compose([
             transforms.ToTensor(),
+            # Normalizeは引数の一つ目のタプルがRGBの各チャンネルの平均を表し、二つ目のタプルが標準偏差を表す
+            # これらの平均と標準偏差にあわせて正規化する
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         self.target_transform = target_transform
         self.embeddings_num = cfg.TEXT.CAPTIONS_PER_IMAGE
