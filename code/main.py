@@ -154,6 +154,7 @@ if __name__ == "__main__":
         transforms.RandomCrop(imsize),
         # 指定された確率（デフォルト0.5）で指定された画像をランダムに水平方向に反転する。
         transforms.RandomHorizontalFlip()])
+    # TextDatasetクラスの生成
     dataset = TextDataset(cfg.DATA_DIR, split_dir,
                           base_size=cfg.TREE.BASE_SIZE,
                           transform=image_transform)

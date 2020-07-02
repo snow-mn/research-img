@@ -104,49 +104,60 @@ class TextDataset(data.Dataset):
             # これらの平均と標準偏差にあわせて正規化する
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         self.target_transform = target_transform
+        # Embedding（埋め込み）とは、「文や単語、文字など自然言語の構成要素に対して、何らかの空間におけるベクトルを与えること」
         self.embeddings_num = cfg.TEXT.CAPTIONS_PER_IMAGE
 
         self.imsize = []
+        # base_sizeをimsizeに追加して2倍にを繰り返す
         for i in range(cfg.TREE.BRANCH_NUM):
             self.imsize.append(base_size)
             base_size = base_size * 2
 
         self.data = []
         self.data_dir = data_dir
+        #　data_dirに"birds"が含まれるかの判定 含まれてないなら-1が帰ってくる
+        # 含まれているなら
         if data_dir.find('birds') != -1:
+            # bounding_boxの読み込み
             self.bbox = self.load_bbox()
         else:
             self.bbox = None
+        # パスの結合
         split_dir = os.path.join(data_dir, split)
 
+        # テキストデータをロード
         self.filenames, self.captions, self.ixtoword, \
             self.wordtoix, self.n_words = self.load_text_data(data_dir, split)
 
         self.class_id = self.load_class_id(split_dir, len(self.filenames))
         self.number_example = len(self.filenames)
 
+    # ファイル名とそれに対応するbounding_boxを返す
     def load_bbox(self):
         data_dir = self.data_dir
         bbox_path = os.path.join(data_dir, 'CUB_200_2011/bounding_boxes.txt')
         df_bounding_boxes = pd.read_csv(bbox_path,
+                                        # 空白を区切り文字に
                                         delim_whitespace=True,
                                         header=None).astype(int)
-        #
+        # images.txt=「1 001.Black_footed_Albatross/Black_Footed_Albatross_0046_18.jpg」のような形式
         filepath = os.path.join(data_dir, 'CUB_200_2011/images.txt')
         df_filenames = \
-            pd.read_csv(filepath, delim_whitespace=True, header=None)
+            pd.read_csv(filepath, delim_whitespace=True, header=None) # 空白を区切り文字に
+        # df_filenames[1]はファイル名 これをtolist()でリストに変換
         filenames = df_filenames[1].tolist()
+        # ファイル総数とファイル名を出力
         print('Total filenames: ', len(filenames), filenames[0])
-        #
+        # img_fileの最後から4番目まで（4番目は含まない）
         filename_bbox = {img_file[:-4]: [] for img_file in filenames}
         numImgs = len(filenames)
         for i in range(0, numImgs):
             # bbox = [x-left, y-top, width, height]
+            # 1行目から最後までを切り出してリストに変換
             bbox = df_bounding_boxes.iloc[i][1:].tolist()
 
             key = filenames[i][:-4]
             filename_bbox[key] = bbox
-        #
         return filename_bbox
 
     def load_captions(self, data_dir, filenames):
